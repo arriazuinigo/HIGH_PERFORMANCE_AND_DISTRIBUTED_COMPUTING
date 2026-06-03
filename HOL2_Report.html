@@ -1,0 +1,221 @@
+<h1
+id="hol-02-deploying-a-hybrid-infrastructure-for-researchers-in-aws">HOL
+02 — Deploying a Hybrid Infrastructure for Researchers in AWS</h1>
+<p><strong>Student:</strong> Iñigo Arriazu<br />
+<strong>Email:</strong> inigo.arriazu@estudiants.urv.cat<br />
+<strong>Date:</strong> June 3, 2026<br />
+<strong>Course:</strong> High Performance and Distributed Computing</p>
+<hr />
+<h2 id="step-1-create-vpc-and-public-subnet">Step 1: Create VPC and
+Public Subnet</h2>
+<p>Created a VPC named <code>lab-vpc</code> with CIDR
+<code>10.0.0.0/16</code> and a public subnet named
+<code>lab-public-subnet</code> with CIDR <code>10.0.1.0/24</code>.
+Auto-assign public IP was enabled on the subnet.</p>
+<figure>
+<img src="screenshots/step1_vpc.png" alt="VPC created" />
+<figcaption aria-hidden="true">VPC created</figcaption>
+</figure>
+<figure>
+<img src="screenshots/step1_subnet.png" alt="Public subnet created" />
+<figcaption aria-hidden="true">Public subnet created</figcaption>
+</figure>
+<hr />
+<h2 id="step-2-create-and-attach-internet-gateway">Step 2: Create and
+Attach Internet Gateway</h2>
+<p>Created an Internet Gateway named <code>lab-igw</code> and attached
+it to <code>lab-vpc</code>. This allows traffic between the VPC and the
+internet.</p>
+<figure>
+<img src="screenshots/step2_igw.png"
+alt="Internet Gateway created and attached" />
+<figcaption aria-hidden="true">Internet Gateway created and
+attached</figcaption>
+</figure>
+<hr />
+<h2 id="step-3-create-route-table">Step 3: Create Route Table</h2>
+<p>Created a route table named <code>lab-public-to-internet</code>,
+added a route for <code>0.0.0.0/0</code> pointing to
+<code>lab-igw</code>, and associated it with
+<code>lab-public-subnet</code>.</p>
+<figure>
+<img src="screenshots/step3_route_table.png"
+alt="Route table with internet route" />
+<figcaption aria-hidden="true">Route table with internet
+route</figcaption>
+</figure>
+<hr />
+<h2 id="step-4-launch-ec2-instance">Step 4: Launch EC2 Instance</h2>
+<p>Launched a <code>t2.micro</code> EC2 instance named
+<code>lab-public-ec2</code> in the public subnet with Amazon Linux 2023.
+Configured a security group (<code>lab-sg</code>) allowing inbound
+traffic on port 22 (SSH) and port 8888 (Jupyter Notebook).</p>
+<figure>
+<img src="screenshots/step4_ec2.png" alt="EC2 instance running" />
+<figcaption aria-hidden="true">EC2 instance running</figcaption>
+</figure>
+<figure>
+<img src="screenshots/step4_security_group.png"
+alt="Security group rules (ports 22 and 8888)" />
+<figcaption aria-hidden="true">Security group rules (ports 22 and
+8888)</figcaption>
+</figure>
+<hr />
+<h2 id="step-5-ssh-and-install-software">Step 5: SSH and Install
+Software</h2>
+<p>Connected to the EC2 instance via SSH and installed
+<code>boto3</code>, <code>jupyter</code>, and <code>pillow</code>.</p>
+<figure>
+<img src="screenshots/step5_ssh.png" alt="SSH connection to EC2" />
+<figcaption aria-hidden="true">SSH connection to EC2</figcaption>
+</figure>
+<figure>
+<img src="screenshots/step5_install.png"
+alt="Installing Python libraries" />
+<figcaption aria-hidden="true">Installing Python libraries</figcaption>
+</figure>
+<hr />
+<h2 id="step-6-create-s3-buckets-and-lambda-function">Step 6: Create S3
+Buckets and Lambda Function</h2>
+<h3 id="a.-s3-buckets">6a. S3 Buckets</h3>
+<p>Created two S3 buckets: - <code>lab-input-bucket-arriazu</code>
+(receives images from Jupyter) - <code>lab-output-bucket-arriazu</code>
+(receives processed images from Lambda)</p>
+<figure>
+<img src="screenshots/step6_s3_buckets.png" alt="S3 buckets created" />
+<figcaption aria-hidden="true">S3 buckets created</figcaption>
+</figure>
+<h3 id="b.-lambda-function">6b. Lambda Function</h3>
+<p>Created a Lambda function named <code>lab-lambda-function</code> with
+Python 3.12 runtime. The function downloads an image from the input
+bucket, renames it with a <code>-processed</code> suffix, and uploads it
+to the output bucket.</p>
+<figure>
+<img src="screenshots/step6_lambda.png" alt="Lambda function created" />
+<figcaption aria-hidden="true">Lambda function created</figcaption>
+</figure>
+<h3 id="c.-s3-trigger">6c. S3 Trigger</h3>
+<p>Configured the input bucket to trigger the Lambda function on every
+new object creation (<code>s3:ObjectCreated:*</code>).</p>
+<figure>
+<img src="screenshots/step6_trigger.png"
+alt="S3 trigger configured on Lambda" />
+<figcaption aria-hidden="true">S3 trigger configured on
+Lambda</figcaption>
+</figure>
+<hr />
+<h2 id="step-7-launch-jupyter-and-run-code">Step 7: Launch Jupyter and
+Run Code</h2>
+<h3 id="a.-aws-credentials-on-ec2">7a. AWS Credentials on EC2</h3>
+<p>Configured AWS CLI credentials on the EC2 instance by pasting the
+session credentials from AWS Academy into
+<code>~/.aws/credentials</code>.</p>
+<h3 id="b.-jupyter-notebook-server">7b. Jupyter Notebook Server</h3>
+<p>Launched Jupyter Notebook on port 8888 and accessed it via the
+browser at <code>http://54.160.117.52:8888</code>.</p>
+<figure>
+<img src="screenshots/step7_jupyter.png"
+alt="Jupyter Notebook running in browser" />
+<figcaption aria-hidden="true">Jupyter Notebook running in
+browser</figcaption>
+</figure>
+<h3 id="c.-run-the-upload-code">7c. Run the Upload Code</h3>
+<p>Ran the provided Python code in Jupyter to create an example image
+and upload it to the input S3 bucket.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> PIL <span class="im">import</span> Image, ImageDraw</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> boto3</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> io</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>image <span class="op">=</span> Image.new(<span class="st">&#39;RGB&#39;</span>, (<span class="dv">200</span>, <span class="dv">100</span>), color<span class="op">=</span><span class="st">&#39;white&#39;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>draw <span class="op">=</span> ImageDraw.Draw(image)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>draw.text((<span class="dv">50</span>, <span class="dv">40</span>), <span class="st">&quot;Hello!&quot;</span>, fill<span class="op">=</span><span class="st">&#39;black&#39;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="bu">buffer</span> <span class="op">=</span> io.BytesIO()</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>image.save(<span class="bu">buffer</span>, <span class="bu">format</span><span class="op">=</span><span class="st">&#39;PNG&#39;</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="bu">buffer</span>.seek(<span class="dv">0</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>bucket_name <span class="op">=</span> <span class="st">&#39;lab-input-bucket-arriazu&#39;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>s3 <span class="op">=</span> boto3.client(<span class="st">&#39;s3&#39;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>object_key <span class="op">=</span> <span class="st">&#39;lab-image.png&#39;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>s3.upload_fileobj(<span class="bu">buffer</span>, bucket_name, object_key)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Image uploaded to s3://</span><span class="sc">{</span>bucket_name<span class="sc">}</span><span class="ss">/</span><span class="sc">{</span>object_key<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<p><strong>Output:</strong>
+<code>Image uploaded to s3://lab-input-bucket-arriazu/lab-image.png</code></p>
+<figure>
+<img src="screenshots/step7_code.png" alt="Code executed in Jupyter" />
+<figcaption aria-hidden="true">Code executed in Jupyter</figcaption>
+</figure>
+<hr />
+<h2 id="step-8-verify-lambda-processing">Step 8: Verify Lambda
+Processing</h2>
+<p>Checked the output bucket and confirmed that
+<code>lab-image-processed.png</code> was created by the Lambda
+function.</p>
+<pre><code>2026-06-03 01:48:15   684 lab-image-processed.png</code></pre>
+<figure>
+<img src="screenshots/step8_output.png"
+alt="Processed image in output bucket" />
+<figcaption aria-hidden="true">Processed image in output
+bucket</figcaption>
+</figure>
+<hr />
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Name</th>
+<th>ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VPC</td>
+<td><code>lab-vpc</code></td>
+<td><code>vpc-054299b53c8363ddf</code></td>
+</tr>
+<tr>
+<td>Subnet</td>
+<td><code>lab-public-subnet</code></td>
+<td><code>subnet-02e67214ae0f03891</code></td>
+</tr>
+<tr>
+<td>Internet Gateway</td>
+<td><code>lab-igw</code></td>
+<td><code>igw-09e2b482861db90e9</code></td>
+</tr>
+<tr>
+<td>Route Table</td>
+<td><code>lab-public-to-internet</code></td>
+<td><code>rtb-0862faf3b8ea8ca88</code></td>
+</tr>
+<tr>
+<td>Security Group</td>
+<td><code>lab-sg</code></td>
+<td><code>sg-0cac6d1e0dddde0e0</code></td>
+</tr>
+<tr>
+<td>EC2 Instance</td>
+<td><code>lab-public-ec2</code></td>
+<td><code>i-0ed6e53820503b73a</code></td>
+</tr>
+<tr>
+<td>S3 Input Bucket</td>
+<td><code>lab-input-bucket-arriazu</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>S3 Output Bucket</td>
+<td><code>lab-output-bucket-arriazu</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Lambda Function</td>
+<td><code>lab-lambda-function</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>The complete pipeline works: Jupyter uploads an image to the input
+bucket → S3 triggers the Lambda → Lambda processes the image and saves
+it to the output bucket.</p>
