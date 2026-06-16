@@ -1,0 +1,80 @@
+Assuming unrestricted shared filesystem usage.
+
+SNAKEMAKE
+=========
+  Date: 2026-06-15 13:31:53
+  Workflow ID: 9ec9f1a5-3aee-4cf8-ab88-7678cd62d2b2
+  Platform: macOS-26.5-arm64-arm-64bit-Mach-O
+  Host: ESE135MACDC66X9W24F
+  User: arriazui
+  Snakemake version: 9.23.0
+  Python version: 3.14.5 (v3.14.5:5607950ef23, May 10 2026, 07:38:09) [Clang 21.0.0 (clang-2100.0.123.102)]
+  Command: /Users/arriazui/Library/Python/3.14/bin/snakemake --cores 1
+  Snakefile: /Users/arriazui/Downloads/master/C1_S2/HIGH_PERFORMANCE_AND_DISTRIBUTED_COMPUTING/Assignment3-2026/Snakefile
+  Base directory: /Users/arriazui/Downloads/master/C1_S2/HIGH_PERFORMANCE_AND_DISTRIBUTED_COMPUTING/Assignment3-2026
+  Run directory: /Users/arriazui/Downloads/master/C1_S2/HIGH_PERFORMANCE_AND_DISTRIBUTED_COMPUTING/Assignment3-2026
+  Working directory: /Users/arriazui/Downloads/master/C1_S2/HIGH_PERFORMANCE_AND_DISTRIBUTED_COMPUTING/Assignment3-2026
+  Config file(s): []
+  Config MD5: 99914b932bd37a50b983c5e7c90ae93b
+
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1 (use --cores to define parallelism)
+Rules claiming more threads will be scaled down.
+Job stats:
+job      count
+-----  -------
+parse        1
+align        1
+stats        1
+all          1
+total        4
+
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Jun 15 13:31:54 2026]
+localrule parse:
+    input: PM_50.fasta
+    output: sequences.tsv
+    jobid: 3
+    reason: Missing output files: sequences.tsv
+    resources: tmpdir=/var/folders/ws/5yhyzg_56qbfqs_drrgggh4m0000gp/T
+[Mon Jun 15 13:31:54 2026]
+Finished jobid: 3 (Rule: parse)
+1 of 4 steps (25%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Jun 15 13:31:54 2026]
+localrule align:
+    input: PM_50.fasta, sequences.tsv
+    output: distances.tsv, alignments.tsv
+    jobid: 2
+    reason: Missing output files: alignments.tsv, distances.tsv; Input files updated by another job: sequences.tsv
+    resources: tmpdir=/var/folders/ws/5yhyzg_56qbfqs_drrgggh4m0000gp/T
+[Mon Jun 15 13:31:54 2026]
+Finished jobid: 2 (Rule: align)
+2 of 4 steps (50%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Jun 15 13:31:54 2026]
+localrule stats:
+    input: alignments.tsv, distances.tsv
+    output: cigar_stats.tsv, report.txt
+    jobid: 1
+    reason: Missing output files: report.txt; Input files updated by another job: alignments.tsv, distances.tsv
+    resources: tmpdir=/var/folders/ws/5yhyzg_56qbfqs_drrgggh4m0000gp/T
+[Mon Jun 15 13:31:54 2026]
+Finished jobid: 1 (Rule: stats)
+3 of 4 steps (75%) done
+Select jobs to execute...
+Execute 1 jobs...
+[Mon Jun 15 13:31:54 2026]
+localrule all:
+    input: report.txt
+    jobid: 0
+    reason: Input files updated by another job: report.txt
+    resources: tmpdir=/var/folders/ws/5yhyzg_56qbfqs_drrgggh4m0000gp/T
+[Mon Jun 15 13:31:54 2026]
+Finished jobid: 0 (Rule: all)
+4 of 4 steps (100%) done
+Complete log(s): /Users/arriazui/Downloads/master/C1_S2/HIGH_PERFORMANCE_AND_DISTRIBUTED_COMPUTING/Assignment3-2026/.snakemake/log/2026-06-15T133153.031231.snakemake.log

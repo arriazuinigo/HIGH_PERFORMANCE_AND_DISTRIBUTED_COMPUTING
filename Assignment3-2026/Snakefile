@@ -1,0 +1,71 @@
+# Snakefile - Automated bioinformatics workflow for DNA sequence analysis
+#
+# Dependency structure:
+#   PM_50.fasta
+#       └─► parse_fasta.py ─► sequences.tsv
+#                                   └─► alignment.py ─► distances.tsv
+#                                                    └─► alignments.tsv
+#                                                             └─► cigar_stats.py ─► cigar_stats.tsv
+#                                                                                └─► report.txt
+#
+# Run the full pipeline:   snakemake --cores 1
+# Dry run (no execution):  snakemake -n
+# Generate DAG image:      snakemake --dag | dot -Tpng > dag.png
+
+FASTA = "PM_50.fasta"
+
+
+# ---------------------------------------------------------------------------
+# rule all: declares the final target of the workflow
+# ---------------------------------------------------------------------------
+rule all:
+    input:
+        "report.txt"
+
+
+# ---------------------------------------------------------------------------
+# rule parse: extract accession IDs and sequence lengths from the FASTA file
+# Input:  PM_50.fasta
+# Output: sequences.tsv  (Accession, Length)
+# ---------------------------------------------------------------------------
+rule parse:
+    input:
+        FASTA
+    output:
+        "sequences.tsv"
+    shell:
+        "python3 parse_fasta.py {input}"
+
+
+# ---------------------------------------------------------------------------
+# rule align: compute pairwise edit distances and CIGAR strings
+# Input:  PM_50.fasta (sequences), sequences.tsv (dependency ordering)
+# Output: distances.tsv  (Accession, Distance)
+#         alignments.tsv (Accession, Distance, CIGAR)
+# ---------------------------------------------------------------------------
+rule align:
+    input:
+        fasta=FASTA,
+        seqs="sequences.tsv"
+    output:
+        "distances.tsv",
+        "alignments.tsv"
+    shell:
+        "python3 alignment.py {input.fasta}"
+
+
+# ---------------------------------------------------------------------------
+# rule stats: analyse CIGAR strings and generate the summary report
+# Input:  alignments.tsv, distances.tsv
+# Output: cigar_stats.tsv  (Accession, M, I, D, X)
+#         report.txt       (best/worst/most-matches sequences)
+# ---------------------------------------------------------------------------
+rule stats:
+    input:
+        alignments="alignments.tsv",
+        distances="distances.tsv"
+    output:
+        "cigar_stats.tsv",
+        "report.txt"
+    shell:
+        "python3 cigar_stats.py"
